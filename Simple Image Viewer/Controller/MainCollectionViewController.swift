@@ -29,8 +29,6 @@ class MainCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        collectionView.prefetchDataSource = self
-        
         // fetching data from cache or loading from net if needed
         fetchData()
     }
@@ -166,14 +164,4 @@ class MainCollectionViewController: UICollectionViewController {
         }
     }
 
-}
-
-// MARK:  ImagePrefetcher
-
-extension MainCollectionViewController: UICollectionViewDataSourcePrefetching {
-    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
-        
-        let urls = indexPaths.compactMap { URL(string: $0.row.description) }
-        ImagePrefetcher(urls: urls).start()
-    }
 }
