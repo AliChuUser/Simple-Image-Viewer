@@ -26,11 +26,17 @@ class MainCollectionViewController: UICollectionViewController {
     // net resourse with URLs of images
     let jsonWithPhotoURLs = "https://picsum.photos/v2/list"
     
+    // refreshControl property
+    let refreshControl = UIRefreshControl()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // fetching data from cache or loading from net if needed
         fetchData()
+        
+        // pull to refresh configure method
+        configureRefreshContorl()
     }
 
     // MARK: UICollectionViewDataSource
@@ -160,7 +166,23 @@ class MainCollectionViewController: UICollectionViewController {
             UserDefaults.standard.setPersistentDomain(self.keysDict, forName: self.userDefKey)
             
             self.collectionView.reloadData()
+            self.refreshControl.endRefreshing()
         }
+    }
+    
+    // MARK: Refreshing methods
+    
+    // pull to refresh configure method
+    func configureRefreshContorl() {
+        
+        collectionView.refreshControl = refreshControl
+        refreshControl.addTarget(self, action: #selector(refreshData(_:)), for: .valueChanged)
+    }
+    
+    // refresh action
+    @objc func refreshData(_ sender: Any) {
+        
+        fetchData()
     }
 
 }
