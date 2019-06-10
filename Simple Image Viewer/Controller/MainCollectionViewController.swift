@@ -23,7 +23,7 @@ class MainCollectionViewController: UICollectionViewController {
     var keysDict = [String: String]()
     let userDefKey = "cachedURLs"
     
-    // net resourse with URLs of image
+    // net resourse with URLs of images
     let jsonWithPhotoURLs = "https://picsum.photos/v2/list"
     
     override func viewDidLoad() {
@@ -45,9 +45,6 @@ class MainCollectionViewController: UICollectionViewController {
     
         // Configure the cell
         
-        // fetch the URL of image to download
-        let url = URL(string: imageURLArray[indexPath.row].imageURL ?? "")
-        
         // set the author of the photo
         cell.metaDataCell.text = imageURLArray[indexPath.row].author ?? ""
         cell.metaDataCell.layer.cornerRadius = 7
@@ -65,6 +62,9 @@ class MainCollectionViewController: UICollectionViewController {
         
         // activity indicator (using Kingfisher lib)
         cell.imageViewCell.kf.indicatorType = .activity
+        
+        // fetch the URL of image to download
+        let url = URL(string: imageURLArray[indexPath.row].imageURL ?? "")
         
         // set image from cache or from net if needed (using Kingfisher lib)
         cell.imageViewCell.kf.setImage(with: url,
@@ -127,7 +127,6 @@ class MainCollectionViewController: UICollectionViewController {
         
         // loading image URLs from net
         loadImageURLs(from: jsonWithPhotoURLs)
-        
     }
     
     // loading image URLs from net
