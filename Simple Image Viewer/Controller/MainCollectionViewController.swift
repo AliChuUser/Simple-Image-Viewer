@@ -60,22 +60,22 @@ class MainCollectionViewController: UICollectionViewController {
         imageURLArray[indexPath.row].date = Date()
         
         // default image size for pre-settings
-        let defaultImageSize = CGSize(width: 100, height: 80)
+        let previewImageSize = CGSize(width: 196, height: 135)
         
         // image pre-settings (size, cornerRadius) (using Kingfisher lib)
-        let processor = DownsamplingImageProcessor(size: cell.imageViewCell.image?.size ?? defaultImageSize)
+        let processor = DownsamplingImageProcessor(size: previewImageSize)
                         >> RoundCornerImageProcessor(cornerRadius: 7)
         
         // activity indicator (using Kingfisher lib)
         cell.imageViewCell.kf.indicatorType = .activity
         
         // fetch the URL of image to download
-        let url = URL(string: imageURLArray[indexPath.row].imageURL ?? "")
+        let url = URL(string: imageURLArray[indexPath.row].downloadUrl ?? "")
         
         // set image from cache or from net if needed (using Kingfisher lib)
         cell.imageViewCell.kf.setImage(with: url,
                                        placeholder: UIImage(named: "photo"),
-                                       options: [.processor(processor), .transition(.fade(0.8)), .cacheOriginalImage])
+                                       options: [.processor(processor), .transition(.fade(0.8)), .originalCache(.default)])
         { (result) in
             switch result {
             case .success(let value):
@@ -90,6 +90,14 @@ class MainCollectionViewController: UICollectionViewController {
     }
 
     // MARK: UICollectionViewDelegate
+    
+    // loading images only at displayed cells
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! MainCollectionViewCell
+        
+        cell.imageViewCell.kf.cancelDownloadTask()
+    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
@@ -116,13 +124,13 @@ class MainCollectionViewController: UICollectionViewController {
     func fetchData() {
         
         // fetching image URLs from cache
-        if let keysDict = UserDefaults.standard.persistentDomain(forName: userDefKey) as? [String : String] {
+        if let keysDict = UserDefaults.standard.dictionary(forKey: userDefKey) as? [String : String] {
             
             if !keysDict.isEmpty {
                 for (author, url) in keysDict {
                     let image = Images()
                     image.author = author
-                    image.imageURL = url
+                    image.downloadUrl = url
                     imageURLArray.append(image)
                 }
                 collectionView.reloadData()
@@ -138,36 +146,43 @@ class MainCollectionViewController: UICollectionViewController {
     // loading image URLs from net
     func loadImageURLs(from url: String) {
         
-        // net request with Alamofire
-        AF.request(url).validate().responseJSON { (response) in
+        if InternetConnect.isConnected {
             
-            // data handling with SwiftyJSON
-            switch response.result {
-            case .success(let data):
+            // net request with Alamofire
+            AF.request(url).validate().responseJSON { (response) in
                 
-                let json = JSON(arrayLiteral: data)
-                for i in 0..<json[0].count {
-                    let image = Images()
-                    image.imageURL = json[0][i]["download_url"].stringValue
-                    image.author = json[0][i]["author"].stringValue
-                    self.imageURLArray.append(image)
+                // data handling with SwiftyJSON
+                switch response.result {
+                case .success(let data):
                     
-                    // creating keys to access the cache in future
-                    if let urlKey = image.imageURL,
-                       let authorKey = image.author {
-                        self.keysDict[authorKey] = urlKey
+                    let json = JSON(arrayLiteral: data)
+                    for i in 0..<json[0].count {
+                        let image = Images()
+                        image.downloadUrl = json[0][i]["download_url"].stringValue
+                        image.author = json[0][i]["author"].stringValue
+                        self.imageURLArray.append(image)
+                        
+                        // creating keys to access the cache in future
+                        if let urlKey = image.downloadUrl,
+                            let authorKey = image.author {
+                            self.keysDict[authorKey] = urlKey
+                        }
                     }
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
-            case .failure(let error):
-                print(error.localizedDescription)
+                
+                // save URLs keys in UserDefaults to access the cache in future
+                UserDefaults.standard.set(self.keysDict, forKey: self.userDefKey)
+                
+                self.collectionView.reloadData()
+                self.refreshControl.endRefreshing()
             }
-            
-            // save URLs keys in UserDefaults to access the cache in future
-            UserDefaults.standard.setPersistentDomain(self.keysDict, forName: self.userDefKey)
-            
-            self.collectionView.reloadData()
-            self.refreshControl.endRefreshing()
+        } else {
+            print("Alert! No internet connection!")
+            refreshControl.endRefreshing()
         }
+        
     }
     
     // MARK: Refreshing methods

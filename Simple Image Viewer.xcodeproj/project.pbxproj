@@ -15,6 +15,8 @@
 		121E877E22A8564400BE0EC2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 121E877C22A8564400BE0EC2 /* LaunchScreen.storyboard */; };
 		121E878622A8580700BE0EC2 /* MainCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121E878522A8580700BE0EC2 /* MainCollectionViewCell.swift */; };
 		121E878822A858EB00BE0EC2 /* MainCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121E878722A858EB00BE0EC2 /* MainCollectionViewController.swift */; };
+		12FC9C5B22C7CA630045817C /* ErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12FC9C5A22C7CA630045817C /* ErrorType.swift */; };
+		12FC9C5E22C7DFE80045817C /* InternetConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12FC9C5D22C7DFE80045817C /* InternetConnect.swift */; };
 		772B1EEBD59BD41E48BAEDBE /* Pods_Simple_Image_Viewer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75F72DD25AC4375E27084D71 /* Pods_Simple_Image_Viewer.framework */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +31,8 @@
 		121E877F22A8564400BE0EC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		121E878522A8580700BE0EC2 /* MainCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCollectionViewCell.swift; sourceTree = "<group>"; };
 		121E878722A858EB00BE0EC2 /* MainCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCollectionViewController.swift; sourceTree = "<group>"; };
+		12FC9C5A22C7CA630045817C /* ErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ErrorType.swift; path = ../Controller/ErrorType.swift; sourceTree = "<group>"; };
+		12FC9C5D22C7DFE80045817C /* InternetConnect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = InternetConnect.swift; path = ../Controller/InternetConnect.swift; sourceTree = "<group>"; };
 		1E103C48F68853D408611F3C /* Pods-Simple Image Viewer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Image Viewer.release.xcconfig"; path = "Target Support Files/Pods-Simple Image Viewer/Pods-Simple Image Viewer.release.xcconfig"; sourceTree = "<group>"; };
 		75F72DD25AC4375E27084D71 /* Pods_Simple_Image_Viewer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Simple_Image_Viewer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6B7DB66B38DED84A4EE1C5B /* Pods-Simple Image Viewer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Image Viewer.debug.xcconfig"; path = "Target Support Files/Pods-Simple Image Viewer/Pods-Simple Image Viewer.debug.xcconfig"; sourceTree = "<group>"; };
@@ -76,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				121E877322A8564000BE0EC2 /* AppDelegate.swift */,
+				12FC9C5C22C7CA780045817C /* Services */,
 				121E878A22A8591300BE0EC2 /* Controller */,
 				12072B0422AC1AFC004116A5 /* Model */,
 				121E878922A8590500BE0EC2 /* View */,
@@ -102,6 +107,15 @@
 				12072B0022AC0FE0004116A5 /* DetailViewController.swift */,
 			);
 			path = Controller;
+			sourceTree = "<group>";
+		};
+		12FC9C5C22C7CA780045817C /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				12FC9C5D22C7DFE80045817C /* InternetConnect.swift */,
+				12FC9C5A22C7CA630045817C /* ErrorType.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		6B4493FA719C403A5855CCD9 /* Pods */ = {
@@ -240,6 +254,8 @@
 				121E878822A858EB00BE0EC2 /* MainCollectionViewController.swift in Sources */,
 				12072B0322AC1A4F004116A5 /* Images.swift in Sources */,
 				121E877422A8564000BE0EC2 /* AppDelegate.swift in Sources */,
+				12FC9C5B22C7CA630045817C /* ErrorType.swift in Sources */,
+				12FC9C5E22C7DFE80045817C /* InternetConnect.swift in Sources */,
 				12072B0122AC0FE0004116A5 /* DetailViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

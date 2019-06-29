@@ -11,7 +11,11 @@ import Foundation
 class Images {
     
     // model
+    var id: Int?
     var author: String?
-    var imageURL: String?
+    var width: Int?
+    var height: Int?
+    var url: String?
+    var downloadUrl: String?
     var date: Date?
 }
