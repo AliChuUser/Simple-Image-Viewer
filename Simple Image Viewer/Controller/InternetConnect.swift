@@ -9,6 +9,7 @@
 import Foundation
 import Alamofire
 
+// Check internet connection status
 class InternetConnect {
     
     static var isConnected: Bool {

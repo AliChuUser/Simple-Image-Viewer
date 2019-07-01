@@ -8,13 +8,6 @@
 
 import UIKit
 
-//extension UIAlertController {
-//    convenience init(alertWith title: String, message: String) {
-//        self.init(title: title, message: message, preferredStyle: .alert)
-//    }
-//
-//}
-
 extension UIAlertController {
     
     convenience init(alertWith title: String, message: String) {

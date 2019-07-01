@@ -80,7 +80,9 @@ class DetailViewController: UIViewController {
         label.clipsToBounds = true
         
         // set the date
-        guard let date = image?.date else { return }
+        guard let date = image?.date else {
+            dateLabel.isHidden = true
+            return }
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .short
         dateFormatter.timeStyle = .none

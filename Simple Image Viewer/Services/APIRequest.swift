@@ -10,6 +10,7 @@ import Foundation
 import Alamofire
 import SwiftyJSON
 
+// network request
 class APIRequest {
     
     static func getData(from url: String,
