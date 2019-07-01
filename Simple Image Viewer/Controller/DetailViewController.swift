@@ -12,7 +12,7 @@ import Kingfisher
 
 class DetailViewController: UIViewController {
     
-    var image: Images?
+    var image: Image?
     
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var label: UILabel!

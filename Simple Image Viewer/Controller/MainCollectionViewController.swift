@@ -10,18 +10,22 @@ import UIKit
 import Kingfisher
 import Alamofire
 import SwiftyJSON
+import RealmSwift
 
 // cell id
 private let reuseIdentifier = "viewCell"
 
 class MainCollectionViewController: UICollectionViewController {
     
-    // container for URLs of images to download
-    var imageURLArray = [Images]()
+    // get the default Realm
+    let realm = try! Realm()
+    
+    // container for data of images to download
+    var imagesDataArray: Results<Image>?
     
     // container and key for saving UserDefoults data
-    var keysDict = [String: String]()
-    let userDefKey = "cachedURLs"
+//    var keysDict = [String: String]()
+//    let userDefKey = "cachedURLs"
     
     // net resourse with URLs of images
     let jsonWithPhotoURLs = "https://picsum.photos/v2/list"
@@ -42,7 +46,7 @@ class MainCollectionViewController: UICollectionViewController {
     // MARK: UICollectionViewDataSource
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageURLArray.count
+        return imagesDataArray?.count ?? 0
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -51,13 +55,15 @@ class MainCollectionViewController: UICollectionViewController {
     
         // Configure the cell
         
+        guard let imageData = imagesDataArray?[indexPath.row] else { return cell }
+        
         // set the author of the photo
-        cell.metaDataCell.text = imageURLArray[indexPath.row].author ?? ""
+        cell.metaDataCell.text = imageData.author ?? "NoName"
         cell.metaDataCell.layer.cornerRadius = 7
         cell.metaDataCell.clipsToBounds = true
         
-        // set the date of loading
-        imageURLArray[indexPath.row].date = Date()
+        // set the date of loading -> This not allow by Realm - need to be set during save func
+        //imageData.date = Date()
         
         // default image size for pre-settings
         let previewImageSize = CGSize(width: 196, height: 135)
@@ -70,7 +76,7 @@ class MainCollectionViewController: UICollectionViewController {
         cell.imageViewCell.kf.indicatorType = .activity
         
         // fetch the URL of image to download
-        let url = URL(string: imageURLArray[indexPath.row].downloadUrl ?? "")
+        let url = URL(string: imageData.downloadUrl ?? "")
         
         // set image from cache or from net if needed (using Kingfisher lib)
         cell.imageViewCell.kf.setImage(with: url,
@@ -104,7 +110,7 @@ class MainCollectionViewController: UICollectionViewController {
         // prepare and passing image data to detailVC
         if segue.identifier == "detailVCSegue" {
             if let detailVC = segue.destination as? DetailViewController {
-                let image = sender as? Images
+                let image = sender as? Image
                 detailVC.image = image
             }
         }
@@ -113,8 +119,8 @@ class MainCollectionViewController: UICollectionViewController {
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         // passing image data at indexPath
-        let image = imageURLArray[indexPath.row]
-        performSegue(withIdentifier: "detailVCSegue", sender: image)
+        guard let imageData = imagesDataArray?[indexPath.row] else { return }
+        performSegue(withIdentifier: "detailVCSegue", sender: imageData)
         collectionView.deselectItem(at: indexPath, animated: true)
     }
     
@@ -123,20 +129,12 @@ class MainCollectionViewController: UICollectionViewController {
     // fetching data from cache or loading from net if needed
     func fetchData() {
         
-        // fetching image URLs from cache
-        if let keysDict = UserDefaults.standard.dictionary(forKey: userDefKey) as? [String : String] {
-            
-            if !keysDict.isEmpty {
-                for (author, url) in keysDict {
-                    let image = Images()
-                    image.author = author
-                    image.downloadUrl = url
-                    imageURLArray.append(image)
-                }
-                collectionView.reloadData()
-            } else {
-                loadImageURLs(from: jsonWithPhotoURLs)
-            }
+        // fetching image data from Realm
+        if !realm.objects(Image.self).isEmpty {
+            imagesDataArray = realm.objects(Image.self)
+            collectionView.reloadData()
+        } else {
+            loadImageURLs(from: jsonWithPhotoURLs)
         }
         
         // loading image URLs from net
@@ -157,24 +155,22 @@ class MainCollectionViewController: UICollectionViewController {
                     
                     let json = JSON(arrayLiteral: data)
                     for i in 0..<json[0].count {
-                        let image = Images()
+                        let jsonPath = json[0][i]
+                        let image = Image()
+                        image.id = jsonPath["id"].intValue
+                        image.author = jsonPath["author"].stringValue
+                        image.width = jsonPath["width"].intValue
+                        image.height = jsonPath["height"].intValue
+                        image.url = jsonPath["url"].stringValue
                         image.downloadUrl = json[0][i]["download_url"].stringValue
-                        image.author = json[0][i]["author"].stringValue
-                        self.imageURLArray.append(image)
-                        
-                        // creating keys to access the cache in future
-                        if let urlKey = image.downloadUrl,
-                            let authorKey = image.author {
-                            self.keysDict[authorKey] = urlKey
-                        }
+                        image.date = Date()
+                        self.save(imageData: image)
                     }
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
                 
-                // save URLs keys in UserDefaults to access the cache in future
-                UserDefaults.standard.set(self.keysDict, forKey: self.userDefKey)
-                
+                self.imagesDataArray = self.realm.objects(Image.self)
                 self.collectionView.reloadData()
                 self.refreshControl.endRefreshing()
             }
@@ -182,7 +178,16 @@ class MainCollectionViewController: UICollectionViewController {
             print("Alert! No internet connection!")
             refreshControl.endRefreshing()
         }
-        
+    }
+    
+    func save(imageData: Image) {
+        do {
+            try realm.write {
+                realm.add(imageData)
+            }
+        } catch {
+            print("Error saving imageData \(error.localizedDescription)")
+        }
     }
     
     // MARK: Refreshing methods
