@@ -8,7 +8,6 @@
 
 import UIKit
 import Kingfisher
-import Alamofire
 import SwiftyJSON
 import RealmSwift
 
@@ -24,7 +23,7 @@ class MainCollectionViewController: UICollectionViewController {
     var imagesDataArray: Results<Image>?
     
     // net resource with data of images
-    let jsonWithPhotos = "https://picsum.photos/v2/list"
+    let jsonWithPhotos = "https://pixabay.com/api/?key=12925092-56f91107b881b95d2f175794e"
     
     // refreshControl property
     let refreshControl = UIRefreshControl()
@@ -93,15 +92,18 @@ class MainCollectionViewController: UICollectionViewController {
         }
         
         // parse JSON and save new data from JSON to Realm
-        for i in 0..<json[0].count {
-            let jsonPath = json[0][i]
+        for i in 0..<json[0]["hits"].count {
+            let jsonPath = json[0]["hits"][i]
             let image = Image()
             image.id = jsonPath["id"].intValue
-            image.author = jsonPath["author"].stringValue
-            image.width = jsonPath["width"].intValue
-            image.height = jsonPath["height"].intValue
-            image.url = jsonPath["url"].stringValue
-            image.downloadUrl = jsonPath["download_url"].stringValue
+            image.user = jsonPath["user"].stringValue
+            image.imageWidth = jsonPath["imageWidth"].intValue
+            image.imageHeight = jsonPath["imageHeight"].intValue
+            image.imageSize = jsonPath["imageSize"].intValue
+            image.previewURL = jsonPath["previewURL"].stringValue
+            image.largeImageURL = jsonPath["largeImageURL"].stringValue
+            image.pageURL = jsonPath["pageURL"].stringValue
+            image.userAvatar = jsonPath["userImageURL"].stringValue
             image.date = Date()
             self.save(imageData: image)
         }
@@ -155,22 +157,18 @@ extension MainCollectionViewController {
         guard let imageData = imagesDataArray?[indexPath.row] else { return }
         
         // set the author of the photo
-        cell.metaDataCell.text = imageData.author ?? "NoName"
+        cell.metaDataCell.text = imageData.user ?? "NoName"
         cell.metaDataCell.layer.cornerRadius = 7
         cell.metaDataCell.clipsToBounds = true
         
-        // default image size for pre-settings
-        let previewImageSize = CGSize(width: 196, height: 135)
-        
-        // image pre-settings (size, cornerRadius) (using Kingfisher lib)
-        let processor = DownsamplingImageProcessor(size: previewImageSize)
-            >> RoundCornerImageProcessor(cornerRadius: 7)
+        // image pre-settings (using Kingfisher lib)
+        let processor = RoundCornerImageProcessor(cornerRadius: 7)
         
         // activity indicator (using Kingfisher lib)
         cell.imageViewCell.kf.indicatorType = .activity
         
         // fetch the URL of image to download
-        let url = URL(string: imageData.downloadUrl ?? "")
+        let url = URL(string: imageData.previewURL ?? "")
         
         // set image from cache or from net if needed (using Kingfisher lib)
         cell.imageViewCell.kf.setImage(with: url,

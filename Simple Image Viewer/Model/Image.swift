@@ -13,10 +13,13 @@ import RealmSwift
 class Image: Object {
     
     @objc dynamic var id: Int = 0
-    @objc dynamic var author: String? = nil
-    @objc dynamic var width: Int = 0
-    @objc dynamic var height: Int = 0
-    @objc dynamic var url: String? = nil
-    @objc dynamic var downloadUrl: String? = nil
+    @objc dynamic var user: String? = nil
+    @objc dynamic var imageWidth: Int = 0
+    @objc dynamic var imageHeight: Int = 0
+    @objc dynamic var imageSize: Int = 0
+    @objc dynamic var previewURL: String? = nil
+    @objc dynamic var largeImageURL: String? = nil
+    @objc dynamic var pageURL: String? = nil
+    @objc dynamic var userAvatar: String? = nil
     @objc dynamic var date: Date? = nil
 }
