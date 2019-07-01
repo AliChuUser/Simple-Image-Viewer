@@ -14,6 +14,8 @@ class DetailViewController: UIViewController {
     
     var image: Image?
     
+    var alert = UIAlertController()
+    
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var label: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
@@ -67,7 +69,7 @@ class DetailViewController: UIViewController {
             if InternetConnect.isConnected {
                 imageView.kf.setImage(with: url)
             } else {
-                print("Alert! No internet connection!")
+                alert = UIAlertController(onViewController: self, withTitle: "No internet", withMessage: "Cannot load image")
             }
             
         }
